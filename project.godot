@@ -11,9 +11,29 @@ config_version=5
 [application]
 
 config/name="Behind The Moon"
+run/main_scene="res://scenes/level/level1.tscn"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [dotnet]
 
 project/assembly_name="Behind The Moon"
+
+[input]
+
+player_left={
+"deadzone": 0.5,
+"events": []
+}
+player_right={
+"deadzone": 0.5,
+"events": []
+}
+player_forward={
+"deadzone": 0.5,
+"events": []
+}
+player_back={
+"deadzone": 0.5,
+"events": []
+}

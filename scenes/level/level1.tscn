@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://b2fqigs7n1ias"]
 
-[ext_resource type="Script" path="res://Node3d.cs" id="1_ekb0j"]
+[ext_resource type="PackedScene" uid="uid://ildqtmpiugr5" path="res://scenes/player/player.tscn" id="1_ubw8u"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_tki6x"]
 
@@ -11,12 +11,6 @@ size = Vector3(10, 0.1, 10)
 size = Vector3(10, 0.1, 10)
 
 [node name="Node" type="Node"]
-script = ExtResource("1_ekb0j")
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, -2, 3, 7.19173)
-current = true
-fov = 100.7
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
 transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 0, 0)
@@ -29,4 +23,7 @@ shape = SubResource("BoxShape3D_4skws")
 mesh = SubResource("BoxMesh_kesw8")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 1, 11, 1)
+transform = Transform3D(1, 0, 0, 0, 0.977113, 0.212723, 0, -0.212723, 0.977113, 1, 11, 1)
+
+[node name="Player" parent="." instance=ExtResource("1_ubw8u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0136871, 0.634783, -0.0115414)
