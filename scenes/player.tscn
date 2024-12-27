@@ -1,14 +1,32 @@
-[gd_scene load_steps=4 format=3 uid="uid://ildqtmpiugr5"]
+[gd_scene load_steps=8 format=3 uid="uid://ildqtmpiugr5"]
 
 [ext_resource type="Script" path="res://scenes/Player.cs" id="1_7ujsl"]
+[ext_resource type="Shader" path="res://shaders/outline.gdshader" id="2_df8jh"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ovn6x"]
 size = Vector3(0.5, 1, 0.5)
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_1tj8b"]
-lightmap_size_hint = Vector2i(8, 8)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_n3ywj"]
+render_priority = 0
+shader = ExtResource("2_df8jh")
+shader_parameter/outline_width = 2.0
+shader_parameter/base_color = Color(1, 1, 1, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_yn0vv"]
+material = SubResource("ShaderMaterial_n3ywj")
 radius = 0.2
 height = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jc136"]
+render_priority = 0
+shader = ExtResource("2_df8jh")
+shader_parameter/outline_width = 2.0
+shader_parameter/base_color = Color(1, 1, 1, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_aac2o"]
+material = SubResource("ShaderMaterial_jc136")
+radius = 0.03
+height = 0.2
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_7ujsl")
@@ -20,8 +38,16 @@ shape = SubResource("BoxShape3D_ovn6x")
 
 [node name="Pivot" type="Node3D" parent="."]
 
-[node name="Camera3D" type="Camera3D" parent="Pivot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.322556, -0.23402)
+[node name="HeadPivot" type="Node3D" parent="Pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.336898, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Pivot"]
-mesh = SubResource("CapsuleMesh_1tj8b")
+[node name="Camera3D" type="Camera3D" parent="Pivot/HeadPivot"]
+
+[node name="Body" type="Node3D" parent="Pivot"]
+
+[node name="Main" type="MeshInstance3D" parent="Pivot/Body"]
+mesh = SubResource("CapsuleMesh_yn0vv")
+
+[node name="Nose" type="MeshInstance3D" parent="Pivot/Body"]
+transform = Transform3D(0.995236, 0, 0, 0, 0.92566, -0.365579, 0, 0.365579, 0.92566, 0, 0.180602, -0.180788)
+mesh = SubResource("CapsuleMesh_aac2o")

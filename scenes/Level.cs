@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Godot;
 
 namespace BehindTheMoon.scenes;
@@ -24,8 +23,8 @@ public partial class Level : Node
         _menu.Visible = false;
         _peer.CreateServer(Port);
         Multiplayer.MultiplayerPeer = _peer;
-        Multiplayer.PeerConnected += OnPeerConnected;
-        LoadPlayer(Multiplayer.GetUniqueId(), true);
+        Multiplayer.PeerConnected += PeerConnected;
+        SelfLoad();
     }
 
     private void OnJoin()
@@ -33,20 +32,29 @@ public partial class Level : Node
         _menu.Visible = false;
         _peer.CreateClient(Address, Port);
         Multiplayer.MultiplayerPeer = _peer;
-        Multiplayer.PeerConnected += OnPeerConnected;
+        Multiplayer.PeerConnected += PeerConnected;
         ToSignal(GetTree().CreateTimer(0.1f), "timeout").OnCompleted(() =>
         {
-            LoadPlayer(Multiplayer.GetUniqueId(), true);
-            GetNode<Player>(Multiplayer.GetUniqueId().ToString()).GetCamera().Current = true;
+            var player = SelfLoad();
+            player.GetCamera().Current = true;
         });
     }
 
-    private void OnPeerConnected(long id)
+    private void PeerConnected(long id)
     {
         LoadPlayer(id, false);
-        GetNode<Player>(id.ToString()).GetCamera().Current = false;
+        var player = GetNode<Player>(id.ToString());
+        player.GetCamera().Current = false;
     }
 
+    private Player SelfLoad()
+    {
+        LoadPlayer(Multiplayer.GetUniqueId(), true);
+        var player = GetNode<Player>(Multiplayer.GetUniqueId().ToString());
+        player.GetBody().Visible = false;
+        return player;
+    }
+    
     private void LoadPlayer(long id, bool isClient)
     {
         var player = playerScene.Instantiate<Player>();

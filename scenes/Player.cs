@@ -9,11 +9,13 @@ public partial class Player : CharacterBody3D
     [Export] private float _sensitivity;
 
     private Node3D _pivot;
+    private Node3D _headPivot;
 
     public override void _Ready()
     {
-        if (!IsClient) return;
         _pivot = GetNode<Node3D>("Pivot");
+        _headPivot = GetNode<Node3D>("Pivot/HeadPivot");
+        if (!IsClient) return;
         Input.MouseMode = Input.MouseModeEnum.Captured;
     }
 
@@ -39,12 +41,6 @@ public partial class Player : CharacterBody3D
         MoveAndSlide();
         Rpc(MethodName.RemoteSetPosition, GlobalPosition);
     }
-
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
-    private void RemoteSetPosition(Vector3 position)
-    {
-        GlobalPosition = position;
-    }
     
     public override void _Input(InputEvent @event)
     {
@@ -53,9 +49,25 @@ public partial class Player : CharacterBody3D
         
         var input = mouseMotion.Relative;
         input *= _sensitivity;
-        _pivot.RotateObjectLocal(Vector3.Left, input.Y);
+        _headPivot.RotateX(-input.Y);
         _pivot.RotateY(-input.X);
+        Rpc(MethodName.RemoteSetRotation, _pivot.Rotation, _headPivot.Rotation);
     }
     
-    public Camera3D GetCamera() => GetNode<Camera3D>("Pivot/Camera3D");
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+    private void RemoteSetPosition(Vector3 position)
+    {
+        GlobalPosition = position;
+    }
+    
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+    private void RemoteSetRotation(Vector3 pivotRotation, Vector3 headPivotRotation)
+    {
+        _pivot.SetRotation(pivotRotation);
+        _headPivot.SetRotation(headPivotRotation);
+    }
+    
+    public Camera3D GetCamera() => GetNode<Camera3D>("Pivot/HeadPivot/Camera3D");
+    
+    public Node3D GetBody() => GetNode<Node3D>("Pivot/Body");
 }
