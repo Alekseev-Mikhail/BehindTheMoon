@@ -14,9 +14,9 @@ public partial class Level : Node
 
     public override void _Ready()
     {
-        _menu = GetNode<Control>("Menu");
-        GetNode<Button>("Menu/Host").Pressed += OnHost;
-        GetNode<Button>("Menu/Join").Pressed += OnJoin;
+        _menu = GetNode<Control>("GUICanvasLayer/Menu");
+        GetNode<Button>("GUICanvasLayer/Menu/Host").Pressed += OnHost;
+        GetNode<Button>("GUICanvasLayer/Menu/Join").Pressed += OnJoin;
     }
 
     private void OnHost()
@@ -52,7 +52,7 @@ public partial class Level : Node
         var player = playerScene.Instantiate<Player>();
         player.Name = id.ToString();
         player.IsClient = isClient;
-        player.SetPosition(new Vector3(GD.Randf(), 0.6f, GD.Randf()));
+        player.SetPosition(new Vector3(GD.Randf(), 1f, GD.Randf()));
         AddChild(player);
     }
 }

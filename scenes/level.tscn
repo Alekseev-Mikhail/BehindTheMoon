@@ -1,41 +1,210 @@
-[gd_scene load_steps=6 format=3 uid="uid://b2fqigs7n1ias"]
+[gd_scene load_steps=22 format=3 uid="uid://b2fqigs7n1ias"]
 
 [ext_resource type="Script" path="res://scenes/Level.cs" id="1_jho1g"]
 [ext_resource type="PackedScene" uid="uid://ildqtmpiugr5" path="res://scenes/player.tscn" id="2_cflpx"]
+[ext_resource type="Shader" path="res://shaders/outline.gdshader" id="4_ndb8h"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0yjcl"]
+render_priority = 0
+shader = ExtResource("4_ndb8h")
+shader_parameter/outline_width = 5.0
+shader_parameter/base_color = Color(1, 1, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6rcf0"]
+material = SubResource("ShaderMaterial_0yjcl")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0d84e"]
+render_priority = 0
+shader = ExtResource("4_ndb8h")
+shader_parameter/outline_width = 2.0
+shader_parameter/base_color = Color(1, 1, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_nulpc"]
+material = SubResource("ShaderMaterial_0d84e")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ni3tg"]
+render_priority = 0
+shader = ExtResource("4_ndb8h")
+shader_parameter/outline_width = 2.0
+shader_parameter/base_color = Color(1, 1, 1, 1)
+
+[sub_resource type="TorusMesh" id="TorusMesh_r7mld"]
+material = SubResource("ShaderMaterial_ni3tg")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dhtro"]
+render_priority = 0
+shader = ExtResource("4_ndb8h")
+shader_parameter/outline_width = 2.0
+shader_parameter/base_color = Color(1, 1, 1, 1)
+
+[sub_resource type="TorusMesh" id="TorusMesh_bdr6k"]
+material = SubResource("ShaderMaterial_dhtro")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_r8agm"]
+render_priority = 0
+shader = ExtResource("4_ndb8h")
+shader_parameter/outline_width = 5.0
+shader_parameter/base_color = Color(1, 1, 1, 1)
+
+[sub_resource type="TubeTrailMesh" id="TubeTrailMesh_j4wq1"]
+material = SubResource("ShaderMaterial_r8agm")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_onv76"]
+render_priority = 0
+shader = ExtResource("4_ndb8h")
+shader_parameter/outline_width = 2.0
+shader_parameter/base_color = Color(1, 0.337255, 1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_n6a51"]
+material = SubResource("ShaderMaterial_onv76")
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_tki6x"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4skws"]
 size = Vector3(10, 0.1, 10)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oc77e"]
+render_priority = 0
+shader = ExtResource("4_ndb8h")
+shader_parameter/outline_width = 7.0
+shader_parameter/base_color = Color(0.695503, 0.695503, 0.695503, 1)
+
 [sub_resource type="BoxMesh" id="BoxMesh_kesw8"]
+material = SubResource("ShaderMaterial_oc77e")
 size = Vector3(10, 0.1, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hvxei"]
+size = Vector3(4.545, 4.68, 0.37)
+
+[sub_resource type="BoxMesh" id="BoxMesh_v1p0h"]
+size = Vector3(4.545, 4.68, 0.37)
 
 [node name="Node" type="Node"]
 script = ExtResource("1_jho1g")
 playerScene = ExtResource("2_cflpx")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
+[node name="Cube3" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.994414, 0, 0.188004, 0, 1.01203, 0, -0.188004, 0, -0.994414, -4.01908, 1.04565, 1.29959)
+mesh = SubResource("BoxMesh_6rcf0")
+skeleton = NodePath("")
+
+[node name="Cube4" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.784457, -0.6394, 1.1845e-07, -0.633881, 0.777686, -0.132674, 0.0838234, -0.10284, -1.0033, -4.29296, 1.05394, -2.76612)
+mesh = SubResource("BoxMesh_nulpc")
+skeleton = NodePath("")
+
+[node name="Cube5" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1.01203, 0, 1.52813e-07, 0, 1.01203, 0, -1.52813e-07, 0, -1.01203, -2.38372, 0.893527, 3.31151)
+mesh = SubResource("TorusMesh_r7mld")
+skeleton = NodePath("")
+
+[node name="Cube9" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.874982, -0.508538, -5.47693e-05, -0.508538, 0.874982, -4.22531e-05, 6.85831e-05, -9.0197e-06, -1.01203, -2.72877, 0.947391, -2.67938)
+mesh = SubResource("TorusMesh_bdr6k")
+skeleton = NodePath("")
+
+[node name="Cube6" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1.01198, -0.00957334, 1.52806e-07, -0.00957334, 1.01198, 1.44554e-09, -1.52813e-07, 0, -1.01203, -4.36833, 1.92011, 3.3288)
+mesh = SubResource("TubeTrailMesh_j4wq1")
+skeleton = NodePath("")
+
+[node name="Cube7" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1.01203, 0, 1.52813e-07, 0, 1.01203, 0, -1.52813e-07, 0, -1.01203, -5.97267, 1.18569, 2.08833)
+mesh = SubResource("SphereMesh_n6a51")
+skeleton = NodePath("")
+
+[node name="Floor" type="StaticBody3D" parent="."]
 transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 0, 0)
 physics_material_override = SubResource("PhysicsMaterial_tki6x")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
 shape = SubResource("BoxShape3D_4skws")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
 mesh = SubResource("BoxMesh_kesw8")
 
+[node name="Wall" type="StaticBody3D" parent="."]
+transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, -2.87001, 1.96902, -4.81101)
+physics_material_override = SubResource("PhysicsMaterial_tki6x")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall"]
+shape = SubResource("BoxShape3D_hvxei")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Wall"]
+mesh = SubResource("BoxMesh_v1p0h")
+
+[node name="Wall2" type="StaticBody3D" parent="."]
+transform = Transform3D(1.94707e-07, 0, 1, 0, 1, 0, -1, 0, 1.94707e-07, -5.02328, 1.96902, -2.78368)
+physics_material_override = SubResource("PhysicsMaterial_tki6x")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall2"]
+shape = SubResource("BoxShape3D_hvxei")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Wall2"]
+mesh = SubResource("BoxMesh_v1p0h")
+
+[node name="Wall3" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, -2.38419e-07, 0, 1, 0, 2.38419e-07, 0, 1, -2.98461, 1.96902, -0.651877)
+physics_material_override = SubResource("PhysicsMaterial_tki6x")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall3"]
+shape = SubResource("BoxShape3D_hvxei")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Wall3"]
+mesh = SubResource("BoxMesh_v1p0h")
+
+[node name="Wall4" type="StaticBody3D" parent="."]
+transform = Transform3D(1.94707e-07, 0, 1, 0, 1, 0, -1, 0, 1.94707e-07, -0.862959, 5.44797, -2.9214)
+physics_material_override = SubResource("PhysicsMaterial_tki6x")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall4"]
+shape = SubResource("BoxShape3D_hvxei")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Wall4"]
+mesh = SubResource("BoxMesh_v1p0h")
+
+[node name="Wall5" type="StaticBody3D" parent="."]
+transform = Transform3D(-8.51092e-15, -1, -4.37114e-08, 1.94707e-07, -4.37114e-08, 1, -1, 0, 1.94707e-07, -2.97878, 4.16419, -2.9214)
+physics_material_override = SubResource("PhysicsMaterial_tki6x")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall5"]
+shape = SubResource("BoxShape3D_hvxei")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Wall5"]
+mesh = SubResource("BoxMesh_v1p0h")
+
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.73002, 0.683426, 0, -0.683426, 0.73002, 1, 3.5606, 1)
+transform = Transform3D(-0.707357, 0.21461, -0.67349, -0.661859, 0.133426, 0.737659, 0.24817, 0.967543, 0.0476618, -1.60393, 2.6633, 1.58928)
+light_color = Color(0.514092, 0.504013, 0.490262, 1)
 shadow_enabled = true
 
-[node name="Menu" type="Control" parent="."]
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -2.89464, 3.62158, -2.70421)
+light_color = Color(0.310887, 0.250862, 0.121075, 1)
+light_energy = 1.323
+spot_range = 4.59318
+spot_attenuation = -0.7
+spot_angle = 25.41
+spot_angle_attenuation = 0.374122
+
+[node name="SpotLight3D2" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.605558, 0.795801, 0, -0.795801, 0.605558, -2.89464, 2.86263, -0.955903)
+light_color = Color(0.413431, 0.283485, 0.657329, 1)
+light_energy = 0.192
+spot_range = 4.59318
+spot_attenuation = -0.7
+spot_angle = 25.41
+spot_angle_attenuation = 0.374122
+
+[node name="GUICanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Menu" type="Control" parent="GUICanvasLayer"]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="Host" type="Button" parent="Menu"]
+[node name="Host" type="Button" parent="GUICanvasLayer/Menu"]
 layout_mode = 2
 offset_left = 226.0
 offset_top = 24.0
@@ -44,7 +213,7 @@ offset_bottom = 114.0
 rotation = 0.00732942
 text = "Host"
 
-[node name="Join" type="Button" parent="Menu"]
+[node name="Join" type="Button" parent="GUICanvasLayer/Menu"]
 layout_mode = 2
 offset_left = 39.0
 offset_top = 23.0
