@@ -1,4 +1,5 @@
 using Godot;
+using static Godot.GeometryInstance3D;
 
 namespace BehindTheMoon.scenes;
 
@@ -7,6 +8,8 @@ public partial class Player : CharacterBody3D
     public bool IsClient = true;
     [Export] private float _speed;
     [Export] private float _sensitivity;
+    [Export] private float _fallingAcceleration;
+    [Export] private float _jumpForce;
 
     private Node3D _pivot;
     private Node3D _headPivot;
@@ -34,14 +37,34 @@ public partial class Player : CharacterBody3D
     public override void _PhysicsProcess(double delta)
     {
         if (!IsClient) return;
-        var input = Input.GetVector("player_left", "player_right", "player_forward", "player_back");
-        input *= _speed;
-        Velocity = new Vector3(input.X, 0f, input.Y);
-        Velocity = Velocity.Rotated(Vector3.Up, _pivot.Rotation.Y);
+        AddMovementForceIfNeed();
+        AddFallingForceIfNeed();
+        AddJumpingForceIfNeed();
         MoveAndSlide();
         Rpc(MethodName.RemoteSetPosition, GlobalPosition);
     }
-    
+
+    private void AddMovementForceIfNeed()
+    {
+        var input = Input.GetVector("player_left", "player_right", "player_forward", "player_back");
+        input *= _speed;
+        Velocity = new Vector3(input.X, Velocity.Y, input.Y);
+        Velocity = Velocity.Rotated(Vector3.Up, _pivot.Rotation.Y);
+    }
+
+    private void AddFallingForceIfNeed()
+    {
+        if (IsOnFloor()) return;
+        Velocity += new Vector3(0f, -_fallingAcceleration, 0f);
+    }
+
+    private void AddJumpingForceIfNeed()
+    {
+        if (!IsOnFloor()) return;
+        if (!Input.IsActionPressed("player_jump")) return;
+        Velocity += new Vector3(0f, _jumpForce, 0f);
+    }
+
     public override void _Input(InputEvent @event)
     {
         if (!IsClient) return;
@@ -66,8 +89,12 @@ public partial class Player : CharacterBody3D
         _pivot.SetRotation(pivotRotation);
         _headPivot.SetRotation(headPivotRotation);
     }
-    
+
+    public void SetInvisible()
+    {
+        GetNode<MeshInstance3D>("Pivot/Body/Main").CastShadow = ShadowCastingSetting.ShadowsOnly;
+        GetNode<MeshInstance3D>("Pivot/Body/Nose").CastShadow = ShadowCastingSetting.ShadowsOnly;
+    }
+
     public Camera3D GetCamera() => GetNode<Camera3D>("Pivot/HeadPivot/Camera3D");
-    
-    public Node3D GetBody() => GetNode<Node3D>("Pivot/Body");
 }

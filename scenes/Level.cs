@@ -51,7 +51,7 @@ public partial class Level : Node
     {
         LoadPlayer(Multiplayer.GetUniqueId(), true);
         var player = GetNode<Player>(Multiplayer.GetUniqueId().ToString());
-        player.GetBody().Visible = false;
+        player.SetInvisible();
         return player;
     }
     

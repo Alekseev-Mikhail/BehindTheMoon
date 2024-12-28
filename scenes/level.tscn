@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/Level.cs" id="1_jho1g"]
 [ext_resource type="PackedScene" uid="uid://ildqtmpiugr5" path="res://scenes/player.tscn" id="2_cflpx"]
-[ext_resource type="Shader" path="res://shaders/outline.gdshader" id="4_ndb8h"]
+[ext_resource type="Shader" path="res://shaders/main.gdshader" id="4_ndb8h"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_0yjcl"]
 render_priority = 0

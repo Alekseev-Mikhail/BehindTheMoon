@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://ildqtmpiugr5"]
 
 [ext_resource type="Script" path="res://scenes/Player.cs" id="1_7ujsl"]
-[ext_resource type="Shader" path="res://shaders/outline.gdshader" id="2_df8jh"]
+[ext_resource type="Shader" path="res://shaders/main.gdshader" id="2_df8jh"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ovn6x"]
 size = Vector3(0.5, 1, 0.5)
@@ -32,6 +32,8 @@ height = 0.2
 script = ExtResource("1_7ujsl")
 _speed = 5.0
 _sensitivity = 0.001
+_fallingAcceleration = 0.2
+_jumpForce = 5.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_ovn6x")
