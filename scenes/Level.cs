@@ -5,6 +5,7 @@ namespace BehindTheMoon.scenes;
 public partial class Level : Node
 {
     private ENetMultiplayerPeer _peer = new();
+    private Upnp _upnp = new();
     private Control _menu;
     [Export] private PackedScene playerScene;
 
@@ -20,6 +21,9 @@ public partial class Level : Node
 
     private void OnHost()
     {
+        _upnp.Discover();
+        _upnp.AddPortMapping(Port, Port, "godot_udp");
+        
         _menu.Visible = false;
         _peer.CreateServer(Port);
         Multiplayer.MultiplayerPeer = _peer;
@@ -29,15 +33,20 @@ public partial class Level : Node
 
     private void OnJoin()
     {
+        _upnp.Discover();
+        var ip = _upnp.QueryExternalAddress();
+        GD.Print(ip);
+        
         _menu.Visible = false;
-        _peer.CreateClient(Address, Port);
+        _peer.CreateClient(ip, Port);
         Multiplayer.MultiplayerPeer = _peer;
+        Multiplayer.ConnectionFailed += () => GD.Print("Connection Failed");
         Multiplayer.PeerConnected += PeerConnected;
-        ToSignal(GetTree().CreateTimer(0.1f), "timeout").OnCompleted(() =>
+        Multiplayer.ConnectedToServer += () =>
         {
             var player = SelfLoad();
             player.GetCamera().Current = true;
-        });
+        };
     }
 
     private void PeerConnected(long id)
