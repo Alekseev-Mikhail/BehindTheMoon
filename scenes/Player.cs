@@ -6,13 +6,15 @@ namespace BehindTheMoon.scenes;
 public partial class Player : CharacterBody3D
 {
     public bool IsClient = true;
-    [Export] private float _speed;
+    private Node3D _pivot;
+    private Node3D _headPivot;
+    private bool _isRunning;
+    
+    [Export] private float _basicSpeed;
     [Export] private float _sensitivity;
     [Export] private float _fallingAcceleration;
     [Export] private float _jumpForce;
-
-    private Node3D _pivot;
-    private Node3D _headPivot;
+    [Export] private float _runMultiplier;
 
     public override void _Ready()
     {
@@ -37,6 +39,7 @@ public partial class Player : CharacterBody3D
     public override void _PhysicsProcess(double delta)
     {
         if (!IsClient) return;
+        ProcessRunningState();
         AddMovementForceIfNeed();
         AddFallingForceIfNeed();
         AddJumpingForceIfNeed();
@@ -44,12 +47,20 @@ public partial class Player : CharacterBody3D
         Rpc(MethodName.RemoteSetPosition, GlobalPosition);
     }
 
+    private void ProcessRunningState()
+    {
+        if (Input.IsActionJustReleased("player_run") || !IsOnFloor()) _isRunning = false;
+        else if (Input.IsActionPressed("player_run")) _isRunning = true;
+    }
+    
     private void AddMovementForceIfNeed()
     {
         var input = Input.GetVector("player_left", "player_right", "player_forward", "player_back");
-        input *= _speed;
-        Velocity = new Vector3(input.X, Velocity.Y, input.Y);
-        Velocity = Velocity.Rotated(Vector3.Up, _pivot.Rotation.Y);
+        var newVelocity = new Vector3(input.X, 0f, input.Y) * _basicSpeed;
+        if (_isRunning) newVelocity *= _runMultiplier;
+        newVelocity.Y = Velocity.Y;
+        newVelocity = newVelocity.Rotated(Vector3.Up, _pivot.Rotation.Y);
+        Velocity = newVelocity;
     }
 
     private void AddFallingForceIfNeed()

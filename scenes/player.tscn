@@ -30,10 +30,11 @@ height = 0.2
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_7ujsl")
-_speed = 5.0
+_basicSpeed = 5.0
 _sensitivity = 0.001
 _fallingAcceleration = 0.2
 _jumpForce = 5.0
+_runMultiplier = 1.5
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_ovn6x")
