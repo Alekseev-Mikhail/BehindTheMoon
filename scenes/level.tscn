@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://b2fqigs7n1ias"]
+[gd_scene load_steps=23 format=3 uid="uid://b2fqigs7n1ias"]
 
 [ext_resource type="Script" path="res://scenes/Level.cs" id="1_jho1g"]
 [ext_resource type="PackedScene" uid="uid://ildqtmpiugr5" path="res://scenes/player.tscn" id="2_cflpx"]
@@ -12,6 +12,8 @@ shader_parameter/base_color = Color(1, 1, 1, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_6rcf0"]
 material = SubResource("ShaderMaterial_0yjcl")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bsjxa"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_0d84e"]
 render_priority = 0
@@ -82,6 +84,17 @@ size = Vector3(4.545, 4.68, 0.37)
 [node name="Node" type="Node"]
 script = ExtResource("1_jho1g")
 playerScene = ExtResource("2_cflpx")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="Cube8" type="MeshInstance3D" parent="StaticBody3D"]
+transform = Transform3D(-0.982593, 0, 0.185769, 0, 1, 0, -0.185769, 0, -0.982593, -1.42419, 1.11001, -0.375799)
+mesh = SubResource("BoxMesh_6rcf0")
+skeleton = NodePath("")
+
+[node name="Cube10" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(-0.994414, 0, 0.188004, 0, 1.01203, 0, -0.188004, 0, -0.994414, -1.42419, 1.11001, -0.375799)
+shape = SubResource("BoxShape3D_bsjxa")
 
 [node name="Cube3" type="MeshInstance3D" parent="."]
 transform = Transform3D(-0.994414, 0, 0.188004, 0, 1.01203, 0, -0.188004, 0, -0.994414, -4.01908, 1.04565, 1.29959)
