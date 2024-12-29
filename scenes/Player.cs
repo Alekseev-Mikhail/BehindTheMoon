@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using static Godot.GeometryInstance3D;
+using Animation = BehindTheMoon.Util.Animation;
 
 namespace BehindTheMoon.scenes;
 
@@ -10,41 +11,84 @@ public partial class Player : CharacterBody3D
     private Node3D _pivot;
     private Node3D _headPivot;
     private BoxShape3D _collisionShape;
+    private Camera3D _camera;
+
     private Vector3 _defaultCollisionShapeSize;
     private Vector3 _collisionShapeSizeInCrouching;
     private Vector3 _defaultHeadPivotPosition;
     private Vector3 _headPivotPositionInCrouching;
+    private Vector3 _defaultCameraPosition;
+
     private bool _isRunning;
     private bool _isCrouching;
 
-    [Export] private float _basicSpeed;
+    private Animation _swayPositionAnimation;
+    private Animation _swayRotationAnimation;
+
+    [Export, ExportGroup("Movement")] private float _basicSpeed;
     [Export] private float _sensitivity;
     [Export] private float _fallingAcceleration;
     [Export] private float _jumpForce;
     [Export] private float _runMultiplier;
     [Export] private float _crouchMultiplier;
     [Export] private float _crouchHeight;
+    [Export, ExportGroup("Animations")] private float _swayDuration1;
+    [Export] private float _swayEdgeLength1;
+    private float _swayEdgeLengthHalf1;
+    [Export] private float _SwayDuration2;
+    [Export] private float _swayEdgeLength2;
+    private float _swayEdgeLengthHalf2;
 
     public override void _Ready()
     {
         _pivot = GetNode<Node3D>("Pivot");
         _headPivot = GetNode<Node3D>("Pivot/HeadPivot");
         _collisionShape = GetNode<CollisionShape3D>("CollisionShape3D").Shape as BoxShape3D;
+        _camera = GetNode<Camera3D>("Pivot/HeadPivot/Camera3D");
 
         if (_collisionShape == null) throw new InvalidCastException("CollisionShape is not a BoxShape3D");
         if (IsClient) Input.MouseMode = Input.MouseModeEnum.Captured;
 
         _defaultCollisionShapeSize = _collisionShape.Size;
         _collisionShapeSizeInCrouching = new Vector3(_collisionShape.Size.X, _crouchHeight, _collisionShape.Size.Z);
-        
+
         _defaultHeadPivotPosition = _headPivot.Position;
         _headPivotPositionInCrouching = _headPivot.Position;
         _headPivotPositionInCrouching.Y -= (_defaultCollisionShapeSize.Y - _collisionShapeSizeInCrouching.Y) / 2;
+
+        _defaultCameraPosition = _camera.Position;
+
+        InitAnimations();
+    }
+
+    private void InitAnimations()
+    {
+        _swayPositionAnimation = new Animation(_swayDuration1);
+        _swayEdgeLengthHalf1 = _swayEdgeLength1 * 0.5f;
+        _swayPositionAnimation.Update = () =>
+        {
+            _swayPositionAnimation.Source = _camera.Position;
+            _swayPositionAnimation.Target = GetRandomBox(_swayEdgeLength1, _swayEdgeLengthHalf1);
+        };
+        _swayPositionAnimation.Start();
+
+        _swayRotationAnimation = new Animation(_SwayDuration2);
+        _swayEdgeLengthHalf2 = _swayEdgeLength2 * 0.5f;
+        _swayRotationAnimation.Update = () =>
+        {
+            _swayRotationAnimation.Source = _camera.Rotation;
+            _swayRotationAnimation.Target = GetRandomBox(_swayEdgeLength2, _swayEdgeLengthHalf2);
+        };
+        _swayRotationAnimation.Start();
     }
 
     public override void _Process(double delta)
     {
         if (!IsClient) return;
+
+        _camera.Position = _swayPositionAnimation.Step((float)delta);
+        _camera.Rotation = _swayRotationAnimation.Step((float)delta);
+
         if (!Input.IsKeyPressed(Key.Escape)) return;
         if (Input.MouseMode == Input.MouseModeEnum.Captured)
         {
@@ -145,5 +189,11 @@ public partial class Player : CharacterBody3D
         GetNode<MeshInstance3D>("Pivot/Body/Nose").CastShadow = ShadowCastingSetting.ShadowsOnly;
     }
 
-    public Camera3D GetCamera() => GetNode<Camera3D>("Pivot/HeadPivot/Camera3D");
+    private static Vector3 GetRandomBox(float edgeLength, float halfEdgeLength) => new(
+        GD.Randf() * edgeLength - halfEdgeLength,
+        GD.Randf() * edgeLength - halfEdgeLength,
+        GD.Randf() * edgeLength - halfEdgeLength
+    );
+
+    public Camera3D GetCamera() => _camera;
 }

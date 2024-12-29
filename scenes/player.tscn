@@ -37,6 +37,10 @@ _jumpForce = 5.0
 _runMultiplier = 1.5
 _crouchMultiplier = 0.5
 _crouchHeight = 0.5
+_swayDuration1 = 3.0
+_swayEdgeLength1 = 0.05
+_SwayDuration2 = 4.0
+_swayEdgeLength2 = 0.03
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_ovn6x")
