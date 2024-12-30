@@ -21,23 +21,31 @@ public partial class Player : CharacterBody3D
 
     private bool _isRunning;
     private bool _isCrouching;
-
+    private bool _isSwayingUp;
+    private bool _wasOnFloor;
+    private bool _isGoingDownOnLanding = true;
+    private bool _isEndOfLanding;
+    
     private Animation _swayPositionAnimation;
     private Animation _swayRotationAnimation;
+    private Animation _landingAnimation;
 
-    [Export, ExportGroup("Movement")] private float _basicSpeed;
+    [ExportGroup("Movement")]
+    [Export] private float _basicSpeed;
     [Export] private float _sensitivity;
     [Export] private float _fallingAcceleration;
     [Export] private float _jumpForce;
     [Export] private float _runMultiplier;
     [Export] private float _crouchMultiplier;
     [Export] private float _crouchHeight;
-    [Export, ExportGroup("Animations")] private float _swayDuration1;
-    [Export] private float _swayEdgeLength1;
-    private float _swayEdgeLengthHalf1;
+    [ExportGroup("Animations")]
+    [Export] private float _swayDuration1;
+    [Export] private float _swayHeightDelta;
     [Export] private float _SwayDuration2;
-    [Export] private float _swayEdgeLength2;
-    private float _swayEdgeLengthHalf2;
+    [Export] private float _swayEdgeLength;
+    private float _swayEdgeLengthHalf;
+    [Export] private float _landingDuration;
+    [Export] private float _landingHeightDelta;
 
     public override void _Ready()
     {
@@ -47,8 +55,9 @@ public partial class Player : CharacterBody3D
         _camera = GetNode<Camera3D>("Pivot/HeadPivot/Camera3D");
 
         if (_collisionShape == null) throw new InvalidCastException("CollisionShape is not a BoxShape3D");
-        if (IsClient) Input.MouseMode = Input.MouseModeEnum.Captured;
+        if (!IsClient) return;
 
+        Input.MouseMode = Input.MouseModeEnum.Captured;
         _defaultCollisionShapeSize = _collisionShape.Size;
         _collisionShapeSizeInCrouching = new Vector3(_collisionShape.Size.X, _crouchHeight, _collisionShape.Size.Z);
 
@@ -60,43 +69,78 @@ public partial class Player : CharacterBody3D
 
         InitAnimations();
     }
-
+    
     private void InitAnimations()
     {
+        InitSwayPositionAnimation();
+        _swayPositionAnimation.Start();
+        
+        InitSwayRotationAnimation();
+        _swayRotationAnimation.Start();
+        
+        InitLandingAnimation();
+    }
+
+    private void InitSwayPositionAnimation()
+    {
         _swayPositionAnimation = new Animation(_swayDuration1);
-        _swayEdgeLengthHalf1 = _swayEdgeLength1 * 0.5f;
         _swayPositionAnimation.Update = () =>
         {
+            var target = _defaultCameraPosition;
+            target.Y += _isSwayingUp ? _swayHeightDelta : -_swayHeightDelta;
+            _isSwayingUp = !_isSwayingUp;
             _swayPositionAnimation.Source = _camera.Position;
-            _swayPositionAnimation.Target = GetRandomBox(_swayEdgeLength1, _swayEdgeLengthHalf1);
+            _swayPositionAnimation.Target = target;
         };
-        _swayPositionAnimation.Start();
-
+    }
+    
+    private void InitSwayRotationAnimation()
+    {
         _swayRotationAnimation = new Animation(_SwayDuration2);
-        _swayEdgeLengthHalf2 = _swayEdgeLength2 * 0.5f;
+        _swayEdgeLengthHalf = _swayEdgeLength * 0.5f;
         _swayRotationAnimation.Update = () =>
         {
             _swayRotationAnimation.Source = _camera.Rotation;
-            _swayRotationAnimation.Target = GetRandomBox(_swayEdgeLength2, _swayEdgeLengthHalf2);
+            _swayRotationAnimation.Target = GetRandomBox(_swayEdgeLength, _swayEdgeLengthHalf);
         };
-        _swayRotationAnimation.Start();
+    }
+    
+    private void InitLandingAnimation()
+    {
+        _landingAnimation = new Animation(_landingDuration / 2f);
+        _landingAnimation.Update = () =>
+        {
+            if (_isEndOfLanding)
+            {
+                _isEndOfLanding = false;
+                _landingAnimation.Stop();
+                _swayPositionAnimation.Start();
+                return;
+            }
+            var target = _defaultCameraPosition;
+            target.Y += _isGoingDownOnLanding ? -_landingHeightDelta : _landingHeightDelta;
+            _isGoingDownOnLanding = !_isGoingDownOnLanding;
+            _landingAnimation.Source = _camera.Position;
+            _landingAnimation.Target = target;
+            if (_isGoingDownOnLanding) _isEndOfLanding = true;
+        };
     }
 
     public override void _Process(double delta)
     {
         if (!IsClient) return;
-
-        _camera.Position = _swayPositionAnimation.Step((float)delta);
-        _camera.Rotation = _swayRotationAnimation.Step((float)delta);
-
-        if (!Input.IsKeyPressed(Key.Escape)) return;
-        if (Input.MouseMode == Input.MouseModeEnum.Captured)
+        
+        var isOnFloor = IsOnFloor();
+        if (isOnFloor && !_wasOnFloor)
         {
-            Input.MouseMode = Input.MouseModeEnum.Visible;
-            return;
+            _swayPositionAnimation.Stop();
+            _landingAnimation.Start();
         }
-
-        Input.MouseMode = Input.MouseModeEnum.Captured;
+        _wasOnFloor = isOnFloor;
+        
+        _camera.Position = _swayPositionAnimation.Step(_camera.Position, (float)delta);
+        _camera.Position = _landingAnimation.Step(_camera.Position, (float)delta);
+        _camera.Rotation = _swayRotationAnimation.Step(_camera.Rotation, (float)delta);
     }
 
     public override void _PhysicsProcess(double delta)
@@ -153,7 +197,7 @@ public partial class Player : CharacterBody3D
     private void AddJumpingForceIfNeed()
     {
         if (!IsOnFloor()) return;
-        if (!Input.IsActionPressed("player_jump")) return;
+        if (!Input.IsActionJustPressed("player_jump")) return;
         _isCrouching = false;
         Velocity += new Vector3(0f, _jumpForce, 0f);
     }

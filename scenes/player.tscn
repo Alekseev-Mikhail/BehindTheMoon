@@ -32,15 +32,17 @@ height = 0.2
 script = ExtResource("1_7ujsl")
 _basicSpeed = 4.0
 _sensitivity = 0.001
-_fallingAcceleration = 0.2
-_jumpForce = 5.0
+_fallingAcceleration = 0.45
+_jumpForce = 8.0
 _runMultiplier = 1.5
 _crouchMultiplier = 0.5
 _crouchHeight = 0.5
-_swayDuration1 = 3.0
-_swayEdgeLength1 = 0.05
-_SwayDuration2 = 4.0
-_swayEdgeLength2 = 0.03
+_swayDuration1 = 4.0
+_swayHeightDelta = 0.05
+_SwayDuration2 = 2.0
+_swayEdgeLength = 0.03
+_landingDuration = 0.36
+_landingHeightDelta = 0.08
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_ovn6x")

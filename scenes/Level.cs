@@ -8,7 +8,7 @@ public partial class Level : Node
     private Control _menu;
     [Export] private PackedScene playerScene;
 
-    private const string Address = "127.0.0.1";
+    private const string Address = "87.92.56.186";
     private const int Port = 9999;
 
     public override void _Ready()
