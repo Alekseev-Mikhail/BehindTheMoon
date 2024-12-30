@@ -1,7 +1,15 @@
-[gd_scene load_steps=8 format=3 uid="uid://ildqtmpiugr5"]
+[gd_scene load_steps=10 format=3 uid="uid://ildqtmpiugr5"]
 
 [ext_resource type="Script" path="res://scenes/Player.cs" id="1_7ujsl"]
 [ext_resource type="Shader" path="res://shaders/main.gdshader" id="2_df8jh"]
+
+[sub_resource type="Curve" id="Curve_kfm6v"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.357143, 1), 0.0, 0.0, 0, 0, Vector2(0.845865, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_hc541"]
+_data = [Vector2(0, 0), 0.0, 4.08058, 0, 0, Vector2(0.522556, 1), -0.30509, -0.30509, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ovn6x"]
 size = Vector3(0.5, 1, 0.5)
@@ -37,22 +45,24 @@ _jumpForce = 8.0
 _runMultiplier = 1.5
 _crouchMultiplier = 0.5
 _crouchHeight = 0.5
-_swayDuration1 = 4.0
+_swayDuration = 7.0
+_swayCurve = SubResource("Curve_kfm6v")
 _swayHeightDelta = 0.05
-_SwayDuration2 = 2.0
-_swayEdgeLength = 0.03
+_landingCurve = SubResource("Curve_hc541")
 _landingDuration = 0.36
-_landingHeightDelta = 0.08
+_landingHeightDelta = 0.04
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_ovn6x")
 
 [node name="Pivot" type="Node3D" parent="."]
 
-[node name="HeadPivot" type="Node3D" parent="Pivot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.336898, 0)
+[node name="Head" type="Node3D" parent="Pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.337, 0)
 
-[node name="Camera3D" type="Camera3D" parent="Pivot/HeadPivot"]
+[node name="Pivot" type="Node3D" parent="Pivot/Head"]
+
+[node name="Camera3D" type="Camera3D" parent="Pivot/Head/Pivot"]
 
 [node name="Body" type="Node3D" parent="Pivot"]
 

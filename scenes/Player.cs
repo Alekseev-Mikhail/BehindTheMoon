@@ -9,6 +9,7 @@ public partial class Player : CharacterBody3D
 {
     public bool IsClient = true;
     private Node3D _pivot;
+    private Node3D _head;
     private Node3D _headPivot;
     private BoxShape3D _collisionShape;
     private Camera3D _camera;
@@ -21,38 +22,35 @@ public partial class Player : CharacterBody3D
 
     private bool _isRunning;
     private bool _isCrouching;
-    private bool _isSwayingUp;
     private bool _wasOnFloor;
-    private bool _isGoingDownOnLanding = true;
-    private bool _isEndOfLanding;
+
+    private float _highestPointInAir;
+    private Vector3 _lastFloor;
     
-    private Animation _swayPositionAnimation;
-    private Animation _swayRotationAnimation;
+    private Animation _swayAnimation;
     private Animation _landingAnimation;
 
-    [ExportGroup("Movement")]
-    [Export] private float _basicSpeed;
+    [ExportGroup("Movement"), Export] private float _basicSpeed;
     [Export] private float _sensitivity;
     [Export] private float _fallingAcceleration;
     [Export] private float _jumpForce;
     [Export] private float _runMultiplier;
     [Export] private float _crouchMultiplier;
     [Export] private float _crouchHeight;
-    [ExportGroup("Animations")]
-    [Export] private float _swayDuration1;
+    [ExportGroup("Animations"), Export] private float _swayDuration;
+    [Export] private Curve _swayCurve;
     [Export] private float _swayHeightDelta;
-    [Export] private float _SwayDuration2;
-    [Export] private float _swayEdgeLength;
-    private float _swayEdgeLengthHalf;
+    [Export] private Curve _landingCurve;
     [Export] private float _landingDuration;
     [Export] private float _landingHeightDelta;
 
     public override void _Ready()
     {
         _pivot = GetNode<Node3D>("Pivot");
-        _headPivot = GetNode<Node3D>("Pivot/HeadPivot");
+        _head = GetNode<Node3D>("Pivot/Head");
+        _headPivot = GetNode<Node3D>("Pivot/Head/Pivot");
         _collisionShape = GetNode<CollisionShape3D>("CollisionShape3D").Shape as BoxShape3D;
-        _camera = GetNode<Camera3D>("Pivot/HeadPivot/Camera3D");
+        _camera = GetNode<Camera3D>("Pivot/Head/Pivot/Camera3D");
 
         if (_collisionShape == null) throw new InvalidCastException("CollisionShape is not a BoxShape3D");
         if (!IsClient) return;
@@ -67,85 +65,66 @@ public partial class Player : CharacterBody3D
 
         _defaultCameraPosition = _camera.Position;
 
-        InitAnimations();
-    }
-    
-    private void InitAnimations()
-    {
         InitSwayPositionAnimation();
-        _swayPositionAnimation.Start();
-        
-        InitSwayRotationAnimation();
-        _swayRotationAnimation.Start();
-        
+        _swayAnimation.Start();
+
         InitLandingAnimation();
     }
 
     private void InitSwayPositionAnimation()
     {
-        _swayPositionAnimation = new Animation(_swayDuration1);
-        _swayPositionAnimation.Update = () =>
+        _swayAnimation = new Animation(_swayCurve, _swayDuration, true);
+        _swayAnimation.Update = () =>
         {
-            var target = _defaultCameraPosition;
-            target.Y += _isSwayingUp ? _swayHeightDelta : -_swayHeightDelta;
-            _isSwayingUp = !_isSwayingUp;
-            _swayPositionAnimation.Source = _camera.Position;
-            _swayPositionAnimation.Target = target;
+            var max = _defaultCameraPosition;
+            max.Y += _swayHeightDelta;
+            _swayAnimation.Source = _camera.Position;
+            _swayAnimation.Max = max;
         };
     }
-    
-    private void InitSwayRotationAnimation()
-    {
-        _swayRotationAnimation = new Animation(_SwayDuration2);
-        _swayEdgeLengthHalf = _swayEdgeLength * 0.5f;
-        _swayRotationAnimation.Update = () =>
-        {
-            _swayRotationAnimation.Source = _camera.Rotation;
-            _swayRotationAnimation.Target = GetRandomBox(_swayEdgeLength, _swayEdgeLengthHalf);
-        };
-    }
-    
+
     private void InitLandingAnimation()
     {
-        _landingAnimation = new Animation(_landingDuration / 2f);
+        _landingAnimation = new Animation(_landingCurve, _landingDuration, false);
         _landingAnimation.Update = () =>
         {
-            if (_isEndOfLanding)
-            {
-                _isEndOfLanding = false;
-                _landingAnimation.Stop();
-                _swayPositionAnimation.Start();
-                return;
-            }
-            var target = _defaultCameraPosition;
-            target.Y += _isGoingDownOnLanding ? -_landingHeightDelta : _landingHeightDelta;
-            _isGoingDownOnLanding = !_isGoingDownOnLanding;
-            _landingAnimation.Source = _camera.Position;
-            _landingAnimation.Target = target;
-            if (_isGoingDownOnLanding) _isEndOfLanding = true;
+            var max = _head.Position;
+            max.Y -= _highestPointInAir / Position.Y * _landingHeightDelta;
+            _landingAnimation.Source = _head.Position;
+            _landingAnimation.Max = max;
         };
+        _landingAnimation.Stopped = () => _head.Position = _landingAnimation.Source;
     }
 
     public override void _Process(double delta)
     {
         if (!IsClient) return;
-        
+
         var isOnFloor = IsOnFloor();
-        if (isOnFloor && !_wasOnFloor)
+        switch (isOnFloor)
         {
-            _swayPositionAnimation.Stop();
-            _landingAnimation.Start();
+            case true:
+                if (!_wasOnFloor)
+                {
+                    _landingAnimation.Start();
+                    _highestPointInAir = 0f;
+                }
+                _lastFloor = Position;
+                break;
+            case false when _wasOnFloor:
+                _landingAnimation.Stop();
+                break;
         }
         _wasOnFloor = isOnFloor;
-        
-        _camera.Position = _swayPositionAnimation.Step(_camera.Position, (float)delta);
-        _camera.Position = _landingAnimation.Step(_camera.Position, (float)delta);
-        _camera.Rotation = _swayRotationAnimation.Step(_camera.Rotation, (float)delta);
+
+        _camera.Position += _swayAnimation.Step(_camera.Position, (float)delta);
+        _head.Position += _landingAnimation.Step(_head.Position, (float)delta);
     }
 
     public override void _PhysicsProcess(double delta)
     {
         if (!IsClient) return;
+        if (Position.Y > _highestPointInAir) _highestPointInAir = Position.Y;
         ProcessRunningState();
         ProcessCrouchState();
         AddMovementForceIfNeed();
