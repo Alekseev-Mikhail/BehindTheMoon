@@ -39,12 +39,14 @@ height = 0.2
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_7ujsl")
 _basicSpeed = 4.0
-_sensitivity = 0.001
 _fallingAcceleration = 0.45
 _jumpForce = 8.0
 _runMultiplier = 1.5
 _crouchMultiplier = 0.5
 _crouchHeight = 0.5
+_sensitivity = 0.001
+_maxValue = 90.0
+_minValue = -55.0
 _swayDuration = 7.0
 _swayCurve = SubResource("Curve_kfm6v")
 _swayHeightDelta = 0.05

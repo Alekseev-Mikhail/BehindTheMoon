@@ -26,17 +26,19 @@ public partial class Player : CharacterBody3D
 
     private float _highestPointInAir;
     private Vector3 _lastFloor;
-    
+
     private Animation _swayAnimation;
     private Animation _landingAnimation;
 
     [ExportGroup("Movement"), Export] private float _basicSpeed;
-    [Export] private float _sensitivity;
     [Export] private float _fallingAcceleration;
     [Export] private float _jumpForce;
     [Export] private float _runMultiplier;
     [Export] private float _crouchMultiplier;
     [Export] private float _crouchHeight;
+    [ExportGroup("Camera"), Export] private float _sensitivity;
+    [Export] private float _maxValue;
+    [Export] private float _minValue;
     [ExportGroup("Animations"), Export] private float _swayDuration;
     [Export] private Curve _swayCurve;
     [Export] private float _swayHeightDelta;
@@ -109,12 +111,14 @@ public partial class Player : CharacterBody3D
                     _landingAnimation.Start();
                     _highestPointInAir = 0f;
                 }
+
                 _lastFloor = Position;
                 break;
             case false when _wasOnFloor:
                 _landingAnimation.Stop();
                 break;
         }
+
         _wasOnFloor = isOnFloor;
 
         _camera.Position += _swayAnimation.Step(_camera.Position, (float)delta);
@@ -190,6 +194,12 @@ public partial class Player : CharacterBody3D
         input *= _sensitivity;
         _headPivot.RotateX(-input.Y);
         _pivot.RotateY(-input.X);
+        _headPivot.RotationDegrees = new Vector3(
+            Mathf.Clamp(_headPivot.RotationDegrees.X, _minValue, _maxValue),
+            _headPivot.RotationDegrees.Y,
+            _headPivot.RotationDegrees.Z
+        );
+
         Rpc(MethodName.RemoteSetRotation, _pivot.Rotation, _headPivot.Rotation);
     }
 
