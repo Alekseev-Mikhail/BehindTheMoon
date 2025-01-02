@@ -1,8 +1,9 @@
-[gd_scene load_steps=23 format=3 uid="uid://b2fqigs7n1ias"]
+[gd_scene load_steps=24 format=3 uid="uid://b2fqigs7n1ias"]
 
 [ext_resource type="Script" path="res://scenes/Level.cs" id="1_jho1g"]
 [ext_resource type="PackedScene" uid="uid://ildqtmpiugr5" path="res://scenes/player.tscn" id="2_cflpx"]
 [ext_resource type="Shader" path="res://shaders/main.gdshader" id="4_ndb8h"]
+[ext_resource type="PackedScene" uid="uid://buiy477tuksy4" path="res://scenes/models/Volodya.fbx" id="4_xjdxe"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_0yjcl"]
 render_priority = 0
@@ -271,3 +272,6 @@ offset_top = 23.0
 offset_right = 193.0
 offset_bottom = 111.0
 text = "Join"
+
+[node name="Volodya" parent="." instance=ExtResource("4_xjdxe")]
+transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, 2.99005, 0.070722, 2.87415)
